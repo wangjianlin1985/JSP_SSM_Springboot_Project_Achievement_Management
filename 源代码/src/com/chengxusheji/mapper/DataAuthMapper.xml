@@ -1,0 +1,50 @@
+﻿<!DOCTYPE mapper  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--namespace命名空间，为了对sql语句进行隔离，方便管理，mapper开发dao方式，使用namespace有特殊作用  
+mapper代理开发时将namespace指定为mapper接口的全限定名  
+ -->
+<mapper namespace="com.chengxusheji.mapper.DataAuthMapper"> 
+<!--在mapper.xml文件中配置很多的sql语句，执行每个sql语句时，封装为MappedStatement对象 
+mapper.xml以statement为单位管理sql语句  
+ -->
+	<!-- 添加资料权限记录 -->
+	<insert id="addDataAuth" parameterType="dataAuth">
+		insert into t_dataAuth(dataObj,userObj,requestTime,shenHeState,shenHeReply) values 
+		(#{dataObj.dataId},#{userObj.user_name},#{requestTime},#{shenHeState},#{shenHeReply})
+	</insert>
+
+	<!-- 按照查询条件分页查询资料权限记录 -->
+	<select id="queryDataAuth" resultMap="dataAuthMap" >
+		select t_dataAuth.* from t_dataAuth,t_projectData,t_userInfo ${where} and t_dataAuth.dataObj = t_projectData.dataId and t_dataAuth.userObj = t_userInfo.user_name limit #{startIndex},#{pageSize}
+	</select>
+	<resultMap id="dataAuthMap" type="dataAuth">
+        <id property="authId" column="authId" />
+        <association property="dataObj" column="dataObj" select="com.chengxusheji.mapper.ProjectDataMapper.getProjectData" />
+        <association property="userObj" column="userObj" select="com.chengxusheji.mapper.UserInfoMapper.getUserInfo" />
+    </resultMap>
+
+    <!-- 按照查询条件查询所有资料权限记录 -->
+	<select id="queryDataAuthList" resultMap="dataAuthMap" >
+		select t_dataAuth.* from t_dataAuth,t_projectData,t_userInfo ${where} and t_dataAuth.dataObj = t_projectData.dataId and t_dataAuth.userObj = t_userInfo.user_name
+	</select>
+
+    <!-- 按照查询条件的资料权限记录数 -->
+	<select id="queryDataAuthCount" resultType="int">
+		select count(*) from t_dataAuth,t_projectData,t_userInfo ${where} and t_dataAuth.dataObj = t_projectData.dataId and t_dataAuth.userObj = t_userInfo.user_name
+	</select>
+
+	<!-- 根据主键查询某个资料权限记录 -->
+	<select id="getDataAuth" parameterType="int" resultMap="dataAuthMap">
+		select * from t_dataAuth where t_dataAuth.authId = #{authId}
+	</select>
+
+	<!-- 更新资料权限记录 -->
+	<update id="updateDataAuth" parameterType="dataAuth">
+		update t_dataAuth set dataObj=#{dataObj.dataId},userObj=#{userObj.user_name},requestTime=#{requestTime},shenHeState=#{shenHeState},shenHeReply=#{shenHeReply} where authId = #{authId}
+	</update>
+
+	<!-- 删除资料权限记录 -->
+	<delete id="deleteDataAuth" parameterType="int">
+		delete from t_dataAuth where authId=#{authId}
+	</delete>
+
+</mapper>

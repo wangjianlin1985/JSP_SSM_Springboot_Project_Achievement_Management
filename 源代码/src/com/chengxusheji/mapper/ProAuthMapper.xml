@@ -1,0 +1,50 @@
+﻿<!DOCTYPE mapper  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--namespace命名空间，为了对sql语句进行隔离，方便管理，mapper开发dao方式，使用namespace有特殊作用  
+mapper代理开发时将namespace指定为mapper接口的全限定名  
+ -->
+<mapper namespace="com.chengxusheji.mapper.ProAuthMapper"> 
+<!--在mapper.xml文件中配置很多的sql语句，执行每个sql语句时，封装为MappedStatement对象 
+mapper.xml以statement为单位管理sql语句  
+ -->
+	<!-- 添加项目人员记录 -->
+	<insert id="addProAuth" parameterType="proAuth">
+		insert into t_proAuth(projectObj,userObj,remark,addTime) values 
+		(#{projectObj.projectId},#{userObj.user_name},#{remark},#{addTime})
+	</insert>
+
+	<!-- 按照查询条件分页查询项目人员记录 -->
+	<select id="queryProAuth" resultMap="proAuthMap" >
+		select t_proAuth.* from t_proAuth,t_project,t_userInfo ${where} and t_proAuth.projectObj = t_project.projectId and t_proAuth.userObj = t_userInfo.user_name limit #{startIndex},#{pageSize}
+	</select>
+	<resultMap id="proAuthMap" type="proAuth">
+        <id property="authId" column="authId" />
+        <association property="projectObj" column="projectObj" select="com.chengxusheji.mapper.ProjectMapper.getProject" />
+        <association property="userObj" column="userObj" select="com.chengxusheji.mapper.UserInfoMapper.getUserInfo" />
+    </resultMap>
+
+    <!-- 按照查询条件查询所有项目人员记录 -->
+	<select id="queryProAuthList" resultMap="proAuthMap" >
+		select t_proAuth.* from t_proAuth,t_project,t_userInfo ${where} and t_proAuth.projectObj = t_project.projectId and t_proAuth.userObj = t_userInfo.user_name
+	</select>
+
+    <!-- 按照查询条件的项目人员记录数 -->
+	<select id="queryProAuthCount" resultType="int">
+		select count(*) from t_proAuth,t_project,t_userInfo ${where} and t_proAuth.projectObj = t_project.projectId and t_proAuth.userObj = t_userInfo.user_name
+	</select>
+
+	<!-- 根据主键查询某个项目人员记录 -->
+	<select id="getProAuth" parameterType="int" resultMap="proAuthMap">
+		select * from t_proAuth where t_proAuth.authId = #{authId}
+	</select>
+
+	<!-- 更新项目人员记录 -->
+	<update id="updateProAuth" parameterType="proAuth">
+		update t_proAuth set projectObj=#{projectObj.projectId},userObj=#{userObj.user_name},remark=#{remark},addTime=#{addTime} where authId = #{authId}
+	</update>
+
+	<!-- 删除项目人员记录 -->
+	<delete id="deleteProAuth" parameterType="int">
+		delete from t_proAuth where authId=#{authId}
+	</delete>
+
+</mapper>

@@ -1,0 +1,49 @@
+﻿<!DOCTYPE mapper  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--namespace命名空间，为了对sql语句进行隔离，方便管理，mapper开发dao方式，使用namespace有特殊作用  
+mapper代理开发时将namespace指定为mapper接口的全限定名  
+ -->
+<mapper namespace="com.chengxusheji.mapper.ProjectDataMapper"> 
+<!--在mapper.xml文件中配置很多的sql语句，执行每个sql语句时，封装为MappedStatement对象 
+mapper.xml以statement为单位管理sql语句  
+ -->
+	<!-- 添加项目资料记录 -->
+	<insert id="addProjectData" parameterType="projectData">
+		insert into t_projectData(projectObj,dataname,datacontent,dataurl,sortNumber,remark,createuser) values 
+		(#{projectObj.projectId},#{dataname},#{datacontent},#{dataurl},#{sortNumber},#{remark},#{createuser})
+	</insert>
+
+	<!-- 按照查询条件分页查询项目资料记录 -->
+	<select id="queryProjectData" resultMap="projectDataMap" >
+		select t_projectData.* from t_projectData,t_project ${where} and t_projectData.projectObj = t_project.projectId limit #{startIndex},#{pageSize}
+	</select>
+	<resultMap id="projectDataMap" type="projectData">
+        <id property="dataId" column="dataId" />
+        <association property="projectObj" column="projectObj" select="com.chengxusheji.mapper.ProjectMapper.getProject" />
+    </resultMap>
+
+    <!-- 按照查询条件查询所有项目资料记录 -->
+	<select id="queryProjectDataList" resultMap="projectDataMap" >
+		select t_projectData.* from t_projectData,t_project ${where} and t_projectData.projectObj = t_project.projectId
+	</select>
+
+    <!-- 按照查询条件的项目资料记录数 -->
+	<select id="queryProjectDataCount" resultType="int">
+		select count(*) from t_projectData,t_project ${where} and t_projectData.projectObj = t_project.projectId
+	</select>
+
+	<!-- 根据主键查询某个项目资料记录 -->
+	<select id="getProjectData" parameterType="int" resultMap="projectDataMap">
+		select * from t_projectData where t_projectData.dataId = #{dataId}
+	</select>
+
+	<!-- 更新项目资料记录 -->
+	<update id="updateProjectData" parameterType="projectData">
+		update t_projectData set projectObj=#{projectObj.projectId},dataname=#{dataname},datacontent=#{datacontent},dataurl=#{dataurl},sortNumber=#{sortNumber},remark=#{remark},createuser=#{createuser} where dataId = #{dataId}
+	</update>
+
+	<!-- 删除项目资料记录 -->
+	<delete id="deleteProjectData" parameterType="int">
+		delete from t_projectData where dataId=#{dataId}
+	</delete>
+
+</mapper>

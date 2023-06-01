@@ -1,0 +1,50 @@
+﻿<!DOCTYPE mapper  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--namespace命名空间，为了对sql语句进行隔离，方便管理，mapper开发dao方式，使用namespace有特殊作用  
+mapper代理开发时将namespace指定为mapper接口的全限定名  
+ -->
+<mapper namespace="com.chengxusheji.mapper.ProAwardMapper"> 
+<!--在mapper.xml文件中配置很多的sql语句，执行每个sql语句时，封装为MappedStatement对象 
+mapper.xml以statement为单位管理sql语句  
+ -->
+	<!-- 添加项目获奖记录 -->
+	<insert id="addProAward" parameterType="proAward">
+		insert into t_proAward(projectObj,awardName,level,userObj,awardTime,createTime,createUser,accessory) values 
+		(#{projectObj.projectId},#{awardName},#{level},#{userObj.user_name},#{awardTime},#{createTime},#{createUser},#{accessory})
+	</insert>
+
+	<!-- 按照查询条件分页查询项目获奖记录 -->
+	<select id="queryProAward" resultMap="proAwardMap" >
+		select t_proAward.* from t_proAward,t_project,t_userInfo ${where} and t_proAward.projectObj = t_project.projectId and t_proAward.userObj = t_userInfo.user_name limit #{startIndex},#{pageSize}
+	</select>
+	<resultMap id="proAwardMap" type="proAward">
+        <id property="awardId" column="awardId" />
+        <association property="projectObj" column="projectObj" select="com.chengxusheji.mapper.ProjectMapper.getProject" />
+        <association property="userObj" column="userObj" select="com.chengxusheji.mapper.UserInfoMapper.getUserInfo" />
+    </resultMap>
+
+    <!-- 按照查询条件查询所有项目获奖记录 -->
+	<select id="queryProAwardList" resultMap="proAwardMap" >
+		select t_proAward.* from t_proAward,t_project,t_userInfo ${where} and t_proAward.projectObj = t_project.projectId and t_proAward.userObj = t_userInfo.user_name
+	</select>
+
+    <!-- 按照查询条件的项目获奖记录数 -->
+	<select id="queryProAwardCount" resultType="int">
+		select count(*) from t_proAward,t_project,t_userInfo ${where} and t_proAward.projectObj = t_project.projectId and t_proAward.userObj = t_userInfo.user_name
+	</select>
+
+	<!-- 根据主键查询某个项目获奖记录 -->
+	<select id="getProAward" parameterType="int" resultMap="proAwardMap">
+		select * from t_proAward where t_proAward.awardId = #{awardId}
+	</select>
+
+	<!-- 更新项目获奖记录 -->
+	<update id="updateProAward" parameterType="proAward">
+		update t_proAward set projectObj=#{projectObj.projectId},awardName=#{awardName},level=#{level},userObj=#{userObj.user_name},awardTime=#{awardTime},createTime=#{createTime},createUser=#{createUser},accessory=#{accessory} where awardId = #{awardId}
+	</update>
+
+	<!-- 删除项目获奖记录 -->
+	<delete id="deleteProAward" parameterType="int">
+		delete from t_proAward where awardId=#{awardId}
+	</delete>
+
+</mapper>
